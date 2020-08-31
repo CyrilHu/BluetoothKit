@@ -152,12 +152,14 @@ public class BKPeripheral: BKPeer, BKCBPeripheralManagerDelegate, BKAvailability
         for availabilityObserver in availabilityObservers {
             availabilityObserver.availabilityObserver?.availabilityObserver(self, availabilityDidChange: .available)
         }
-        if !peripheralManager.isAdvertising {
-            dataService = CBMutableService(type: _configuration.dataServiceUUID, primary: true)
+        if !peripheralManager.isAdvertising, let dataServiceUUID = _configuration.dataServiceUUID {
+            dataService = CBMutableService(type: dataServiceUUID, primary: true)
             let properties: CBCharacteristicProperties = [ .read, .notify, .writeWithoutResponse, .write ]
             let permissions: CBAttributePermissions = [ .readable, .writeable ]
-            characteristicData = CBMutableCharacteristic(type: _configuration.dataServiceCharacteristicUUID, properties: properties, value: nil, permissions: permissions)
-            dataService.characteristics = [ characteristicData ]
+            if let dataServiceCharacteristicUUID = _configuration.dataServiceCharacteristicUUID {
+                characteristicData = CBMutableCharacteristic(type: dataServiceCharacteristicUUID, properties: properties, value: nil, permissions: permissions)
+                dataService.characteristics = [ characteristicData ]
+            }
             peripheralManager.add(dataService)
         }
     }
@@ -214,9 +216,12 @@ public class BKPeripheral: BKPeer, BKCBPeripheralManagerDelegate, BKAvailability
 
     internal func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
         if !peripheralManager.isAdvertising {
-            var advertisementData: [String: Any] = [ CBAdvertisementDataServiceUUIDsKey: _configuration.serviceUUIDs ]
+            var advertisementData: [String: Any]? = nil
+            if let serviceUUIDs = _configuration.serviceUUIDs {
+                advertisementData = [ CBAdvertisementDataServiceUUIDsKey:  serviceUUIDs]
+            }
             if let localName = _configuration.localName {
-                advertisementData[CBAdvertisementDataLocalNameKey] = localName
+                advertisementData?[CBAdvertisementDataLocalNameKey] = localName
             }
             peripheralManager.startAdvertising(advertisementData)
         }

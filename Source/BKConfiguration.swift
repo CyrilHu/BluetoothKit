@@ -33,10 +33,10 @@ public class BKConfiguration {
     // MARK: Properties
 
     /// The UUID for the service used to send data. This should be unique to your applications.
-    public let dataServiceUUID: CBUUID
+    public var dataServiceUUID: CBUUID? = nil
 
     /// The UUID for the characteristic used to send data. This should be unique to your application.
-    public var dataServiceCharacteristicUUID: CBUUID
+    public var dataServiceCharacteristicUUID: CBUUID? = nil
 
     /// Data used to indicate that no more data is coming when communicating.
     public var endOfDataMark: Data
@@ -44,27 +44,33 @@ public class BKConfiguration {
     /// Data used to indicate that a transfer was cancellen when communicating.
     public var dataCancelledMark: Data
 
-    internal var serviceUUIDs: [CBUUID] {
-        let serviceUUIDs = [ dataServiceUUID ]
-        return serviceUUIDs
+    internal var serviceUUIDs: [CBUUID]? {
+        if let dataServiceUUID = dataServiceUUID {
+            return [ dataServiceUUID ]
+        }
+        return nil
     }
 
     // MARK: Initialization
 
-    public init(dataServiceUUID: UUID, dataServiceCharacteristicUUID: UUID) {
-        self.dataServiceUUID = CBUUID(nsuuid: dataServiceUUID)
-        self.dataServiceCharacteristicUUID = CBUUID(nsuuid: dataServiceCharacteristicUUID)
+    public init(dataServiceUUID: UUID?, dataServiceCharacteristicUUID: UUID?) {
+        if let dataServiceUUID = dataServiceUUID {
+            self.dataServiceUUID = CBUUID(nsuuid: dataServiceUUID)
+        }
+        if let dataServiceCharacteristicUUID = dataServiceCharacteristicUUID {
+            self.dataServiceCharacteristicUUID = CBUUID(nsuuid: dataServiceCharacteristicUUID)
+        }
         endOfDataMark = "EOD".data(using: String.Encoding.utf8)!
         dataCancelledMark = "COD".data(using: String.Encoding.utf8)!
     }
 
     // MARK Functions
 
-    internal func characteristicUUIDsForServiceUUID(_ serviceUUID: CBUUID) -> [CBUUID] {
-        if serviceUUID == dataServiceUUID {
+    internal func characteristicUUIDsForServiceUUID(_ serviceUUID: CBUUID) -> [CBUUID]? {
+        if let dataServiceCharacteristicUUID = dataServiceCharacteristicUUID, (serviceUUID == dataServiceUUID || dataServiceUUID == nil) {
             return [ dataServiceCharacteristicUUID ]
         }
-        return []
+        return nil
     }
 
 }
