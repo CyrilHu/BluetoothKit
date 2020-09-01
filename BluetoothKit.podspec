@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Source/**/*.{swift}', 'Umbrella/**/*.{h}'
   s.requires_arc = true
   s.osx.deployment_target = '10.10'
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '10.0'
   s.tvos.deployment_target = '9.0'
   s.tvos.exclude_files = 'Source/BKCBPeripheralManagerDelegateProxy.swift',
                          'Source/BKPeripheral.swift',
