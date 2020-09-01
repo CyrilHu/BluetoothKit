@@ -161,7 +161,10 @@ public class BKRemotePeripheral: BKRemotePeer, BKCBPeripheralDelegate {
     }
 
     internal func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
-        guard service.uuid == configuration!.dataServiceUUID, let dataCharacteristic = service.characteristics?.filter({ $0.uuid == configuration!.dataServiceCharacteristicUUID }).last else {
+        guard service.uuid == configuration!.dataServiceUUID || configuration!.dataServiceUUID == nil,
+            let dataCharacteristic = service.characteristics?.filter({
+                $0.uuid == configuration!.dataServiceCharacteristicUUID || configuration!.dataServiceCharacteristicUUID == nil
+            }).last else {
             return
         }
         characteristicData = dataCharacteristic
@@ -170,7 +173,7 @@ public class BKRemotePeripheral: BKRemotePeer, BKCBPeripheralDelegate {
     }
 
     internal func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        guard characteristic.uuid == configuration!.dataServiceCharacteristicUUID else {
+        guard characteristic.uuid == configuration!.dataServiceCharacteristicUUID || configuration!.dataServiceCharacteristicUUID == nil else {
             return
         }
         handleReceivedData(characteristic.value!)
