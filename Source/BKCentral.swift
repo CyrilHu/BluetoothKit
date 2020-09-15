@@ -320,7 +320,9 @@ public class BKCentral: BKPeer, BKCBCentralManagerStateDelegate, BKConnectionPoo
                 let characteristic = remotePeripheral.characteristicData else {
             return false
         }
-        peripheral.writeValue(data, for: characteristic, type: .withoutResponse)
+        if (data.count > 0) {
+            peripheral.writeValue(data, for: characteristic, type: .withoutResponse)
+        }
         return true
     }
 
